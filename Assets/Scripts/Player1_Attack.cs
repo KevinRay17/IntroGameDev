@@ -6,7 +6,8 @@ public class Player1_Attack : MonoBehaviour {
 	private Collider attack;
 	private MeshRenderer attackeffect;
 
-
+	public AudioClip swordswing;
+	private AudioSource source { get { return GetComponent<AudioSource> (); } }
 
 	public bool attackbutton = false;
 	public bool damageBoxActive;
@@ -17,6 +18,8 @@ public class Player1_Attack : MonoBehaviour {
 
 	public int damageOfMove;
 
+	Animator anim;
+
 
 
 	private void Start()
@@ -25,6 +28,12 @@ public class Player1_Attack : MonoBehaviour {
 		attackeffect = GetComponent<MeshRenderer> ();
 		attack.enabled = false;
 		attackeffect.enabled = false;
+
+		anim = GameObject.Find("Player 1").GetComponent<Animator> ();
+		gameObject.AddComponent<AudioSource> ();
+		source.clip = swordswing;
+		source.playOnAwake = false;
+
 	}
 
 	public void initialize_attack (int frames)
@@ -37,6 +46,10 @@ public class Player1_Attack : MonoBehaviour {
 	public void Update()
 	{
 		attackeffect.enabled = attack.enabled;
+		anim.SetBool ("attack", attack.enabled);
+		if (attack.enabled) {
+			source.PlayOneShot (swordswing);
+		}
 
 		if (Input.GetButton ("Con1_Attack") && !attackbutton) {
 			attackbutton = true;

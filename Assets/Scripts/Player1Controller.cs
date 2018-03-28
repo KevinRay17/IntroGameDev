@@ -5,6 +5,7 @@ using UnityEngine;
 public class Player1Controller : MonoBehaviour {	
 	public int hp = 100;
 
+	Animator anim;
 
 	public float speed = 50.0f;
 	public float jumpVel = 24.0f;
@@ -24,6 +25,8 @@ public class Player1Controller : MonoBehaviour {
 	void Start () {
 		Physics.gravity = new Vector3 (0f, -75.0f, 0f);
 		playerrb = this.GetComponent <Rigidbody>();
+
+		anim = this.GetComponent<Animator> ();
 	}
 
 	// Update is called once per frame
@@ -73,7 +76,7 @@ public class Player1Controller : MonoBehaviour {
 		}
 			
 		bool overlap = false;
-		Collider[] hitColliders = Physics.OverlapSphere (playerrb.position, .75f);
+		Collider[] hitColliders = Physics.OverlapSphere (playerrb.position, 0.75f);
 		foreach (Collider c in hitColliders) {
 			if (c.gameObject.layer == 8) {
 				overlap = true;
@@ -89,8 +92,16 @@ public class Player1Controller : MonoBehaviour {
 		playerrb.velocity = new Vector3(xMovement, verticalVel ,0);
 
 
-
-
+		//Animation
+			anim.SetBool ("inAir", !isGrounded);
+			anim.SetBool ("onWall", wallJump);
+		if (Mathf.Abs(playerrb.velocity.x) > 0) {
+			anim.SetBool ("isWalking", true);
+		} else {
+			anim.SetBool ("isWalking", false);
+		}
+			
+		//Death
 		if (hp <= 0) {
 			Destroy (gameObject);
 
@@ -113,6 +124,9 @@ public class Player1Controller : MonoBehaviour {
 		if (col.gameObject.tag == "Player") {
 			touchopp = true;
 		}
+		if (col.gameObject.tag == "Wall") {
+			anim.SetBool ("onWall", true);
+		}
 	}
 
 
@@ -120,11 +134,22 @@ public class Player1Controller : MonoBehaviour {
 		if (col.gameObject.tag == "Floor" || col.gameObject.tag == "Wall" || col.gameObject.tag == "Player") {
 			isGrounded = false;
 		}
+
+		Collider[] hitColliders = Physics.OverlapSphere (playerrb.position, 1.0f);
+		foreach (Collider c in hitColliders) {
+			if (c.gameObject.name == "Floor") {
+				isGrounded = true;
+			}
+		}
+
 		if (col.gameObject.tag == "Wall" || col.gameObject.tag == "Player") {
 			wallJump = false;
 		}
 		if (col.gameObject.tag == "Player") {
 			touchopp = false;
+		}
+		if (col.gameObject.tag == "Wall") {
+			anim.SetBool ("onWall", false);
 		}
 	}
 }
